@@ -1,0 +1,5 @@
+theme = Horizon
+font-family = Monaco
+font-size = 14
+font-thicken = true
+adjust-cursor-thickness = 12

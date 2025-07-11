@@ -1,0 +1,22 @@
+# My custom bash scripts and mini tools
+export PATH="$PATH:$HOME/tools/bin"
+
+# McFly (better ctrl r)
+eval "$(mcfly init zsh)"
+
+# Zoxide (better cd)
+eval "$(zoxide init zsh)"
+
+# My aliases
+source $HOME/.zsh_alias
+
+# Starship (better PS1)
+eval "$(starship init zsh)"
+
+
+
+# Change default McFly sort
+export MCFLY_RESULTS_SORT=LAST_RUN
+# Sessionizer
+bindkey -s ^h "tmux-sessionizer-new-session\n"
+bindkey -s ^f "tmux-sessionizer\n"

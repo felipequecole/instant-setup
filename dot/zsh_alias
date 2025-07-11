@@ -1,0 +1,24 @@
+
+# nvim
+alias vi=nvim
+alias vim=nvim
+
+# Zoxide
+alias cd="z"
+alias cdi="zi"
+
+# Git
+alias gpom="git pull origin main"
+alias gpomm="git pull origin master"
+
+# AWS local
+alias awslocal="aws --endpoint-url=http://localhost:4566 --region us-east-1 --no-cli-pager"
+
+# lein aliases
+alias lcr="lein catalyst-repl"
+alias llf="lein lint-fix"
+alias lrepl="lein repl"
+alias ldrepl="lein dynamodb-local repl"
+
+# zprint formatter
+alias zpfmt="zprint-clj -w"

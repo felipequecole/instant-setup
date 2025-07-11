@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Find on preferred directories for the project
+if [[ $# -eq 1 ]]; then
+  selected=$1
+else
+  selected=$(find ~/dev/nu ~/dev/learning ~/tools -mindepth 1 -maxdepth 1 -type d | fzf)
+fi
+
+# If none was selected, nothing to do :)
+if [[ -z $selected ]]; then
+  exit 0
+fi
+
+# Prepare the workspace name (getting only the last part and replacing . with _)
+selected_name=$(basename "$selected" | tr . _)
+
+# Check if tmux is running
+tmux_running=$(pgrep tmux)
+
+# If the script is not running inside a tmux session and tmux is not running
+#   Then create a new session
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+  tmux new-session -s $selected_name -c $selected -n vim
+  tmux neww -t $selected_name -n terminal -d -c $selected
+  tmux send-keys -t ${selected_name}:vim "nvim ." Enter
+  # tmux splitw -v -t ${selected_name}:repl -c $selected
+  exit 0
+fi
+
+# If tmux is running but the session does not exist, create it detached
+if ! tmux has-session -t=$selected_name 2>/dev/null; then
+  tmux new-session -ds $selected_name -c $selected -n vim
+  tmux neww -t $selected_name -n terminal -d -c $selected
+  tmux send-keys -t ${selected_name}:vim "nvim ." Enter
+  # tmux splitw -v -t ${selected_name}:repl -c $selected
+fi
+
+# If not already inside a tmux session, attach to the created session, otherwise switch to it
+if [[ -z $TMUX ]]; then
+  tmux attach -t $selected_name:vim
+else
+  tmux switch-client -t $selected_name:vim
+fi
