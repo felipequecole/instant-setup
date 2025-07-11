@@ -13,8 +13,6 @@ source $HOME/.zsh_alias
 # Starship (better PS1)
 eval "$(starship init zsh)"
 
-
-
 # Change default McFly sort
 export MCFLY_RESULTS_SORT=LAST_RUN
 # Sessionizer
