@@ -4,7 +4,7 @@
 if [[ $# -eq 1 ]]; then
   selected=$1
 else
-  selected=$(find ~/dev/nu ~/dev/learning ~/tools -mindepth 1 -maxdepth 1 -type d | fzf)
+  selected=$(find ~/dev/nu ~/dev/learning ~/tools ~/pessoal-repos -mindepth 1 -maxdepth 1 -type d | fzf)
 fi
 
 # If none was selected, nothing to do :)
@@ -15,30 +15,35 @@ fi
 # Prepare the workspace name (getting only the last part and replacing . with _)
 selected_name=$(basename "$selected" | tr . _)
 
+# Set terminal window title (works in iTerm2 and most terminal emulators)
+echo -ne "\033]0;${selected_name}\007"
+
 # Check if tmux is running
 tmux_running=$(pgrep tmux)
 
 # If the script is not running inside a tmux session and tmux is not running
 #   Then create a new session
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-  tmux new-session -s $selected_name -c $selected -n vim
-  tmux neww -t $selected_name -n terminal -d -c $selected
-  tmux send-keys -t ${selected_name}:vim "nvim ." Enter
-  # tmux splitw -v -t ${selected_name}:repl -c $selected
+  tmux new-session -ds "$selected_name" -c "$selected" -n vim \; wait-for -S ready
+
+  tmux wait-for ready
+  tmux new-window -t "$selected_name" -n repl -c "$selected"
+  tmux send-keys -t "${selected_name}:vim" "nvim ." C-m
+  tmux select-window -t "${selected_name}:vim"
+  tmux attach -t "$selected_name"
   exit 0
 fi
 
 # If tmux is running but the session does not exist, create it detached
 if ! tmux has-session -t=$selected_name 2>/dev/null; then
   tmux new-session -ds $selected_name -c $selected -n vim
-  tmux neww -t $selected_name -n terminal -d -c $selected
+  tmux neww -t $selected_name -n repl -d -c $selected
   tmux send-keys -t ${selected_name}:vim "nvim ." Enter
-  # tmux splitw -v -t ${selected_name}:repl -c $selected
 fi
 
 # If not already inside a tmux session, attach to the created session, otherwise switch to it
 if [[ -z $TMUX ]]; then
-  tmux attach -t $selected_name:vim
+  tmux attach -t $selected_name
 else
-  tmux switch-client -t $selected_name:vim
+  tmux switch-client -t $selected_name
 fi
